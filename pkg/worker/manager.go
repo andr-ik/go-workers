@@ -8,20 +8,22 @@ import (
 
 type Manager struct {
 	controller Worker
+	handler    func()
 	pool       []Worker
 	conf       *config.Config
 
-	add    chan func()
+	add    chan bool
 	remove chan bool
 }
 
-func NewManager(conf *config.Config) Manager {
+func NewManager(conf *config.Config, handler func()) Manager {
 	return Manager{
 		controller: NewWorker(),
+		handler:    handler,
 		pool:       []Worker{},
 		conf:       conf,
 
-		add:    make(chan func()),
+		add:    make(chan bool),
 		remove: make(chan bool),
 	}
 }
@@ -31,8 +33,8 @@ func (d *Manager) Start() {
 	d.controller.Start(func() {
 		for {
 			select {
-			case h := <-d.add:
-				d.addWorker(h)
+			case <-d.add:
+				d.addWorker()
 				return
 			case <-d.remove:
 				d.removeWorker()
@@ -43,14 +45,14 @@ func (d *Manager) Start() {
 	})
 }
 
-func (d *Manager) Add(handler func()) {
-	d.add <- handler
+func (d *Manager) Add() {
+	d.add <- true
 }
 
-func (d *Manager) addWorker(handler func()) {
+func (d *Manager) addWorker() {
 	job := NewWorker()
 	d.pool = append(d.pool, job)
-	job.Start(handler)
+	job.Start(d.handler)
 
 	fmt.Println("Add worker. Now workers", len(d.pool))
 }

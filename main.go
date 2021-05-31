@@ -24,18 +24,17 @@ func main() {
 
 	fmt.Println("Start")
 
-	managerWorker := worker.NewManager(conf)
-	managerWorker.Start()
-	handler := func() {
+	managerWorker := worker.NewManager(conf, func() {
 		time.Sleep(100 * time.Millisecond)
 		fmt.Print(".")
-	}
+	})
+	managerWorker.Start()
 
 	for i := 0; i < conf.GetNumWorker(); i++ {
-		managerWorker.Add(handler)
+		managerWorker.Add()
 	}
 	time.Sleep(5 * time.Second)
-	managerWorker.Add(handler)
+	managerWorker.Add()
 	time.Sleep(5 * time.Second)
 	managerWorker.Remove()
 	managerWorker.Remove()
