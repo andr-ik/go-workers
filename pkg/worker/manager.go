@@ -2,24 +2,20 @@ package worker
 
 import (
 	"fmt"
-
-	"github.com/andr-ik/go-workers/pkg/config"
 )
 
 type Manager struct {
 	controller Worker
 	pool       []Worker
-	conf       *config.Config
 
 	add    chan func()
 	remove chan bool
 }
 
-func NewManager(conf *config.Config) Manager {
+func NewManager() Manager {
 	return Manager{
 		controller: NewWorker(),
 		pool:       []Worker{},
-		conf:       conf,
 
 		add:    make(chan func()),
 		remove: make(chan bool),

@@ -4,34 +4,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andr-ik/go-workers/pkg/config"
 	"github.com/andr-ik/go-workers/pkg/worker"
 )
 
 func main() {
-	conf := config.NewConfig()
-	err := conf.Update()
-	if err != nil {
-		return
-	}
-
-	ticker := time.NewTicker(time.Second)
-	updateConfigWorker := worker.NewTicker(ticker)
-	updateConfigWorker.Start(func() {
-		_ = conf.Update()
-		fmt.Println("Update conf")
-	})
-
 	fmt.Println("Start")
 
-	managerWorker := worker.NewManager(conf)
+	managerWorker := worker.NewManager()
 	managerWorker.Start()
 	handler := func() {
 		time.Sleep(100 * time.Millisecond)
 		fmt.Print(".")
 	}
 
-	for i := 0; i < conf.GetNumWorker(); i++ {
+	for i := 0; i < 4; i++ {
 		managerWorker.Add(handler)
 	}
 	time.Sleep(5 * time.Second)
@@ -43,8 +29,6 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 	managerWorker.Stop()
-
-	updateConfigWorker.Stop()
 
 	fmt.Println("")
 	fmt.Println("Stop")
