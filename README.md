@@ -1,12 +1,15 @@
 Simple implementation create dinamic workers
 ---
 
-`GroupWorker` depends on `*config.Config`, read file `config/config.txt` and dinamic update num of workers in runtime
+`worker.Manager` service for dinamic create and remove workers in runtime
 
 ```golang
-groupWorker := worker.NewGroupWorker(conf)
-groupWorker.Start(func() {
-    time.Sleep(100 * time.Millisecond)
-    fmt.Print(".")
+managerWorker := worker.NewManager(func() {
+	time.Sleep(1 * time.Second)
+    fmt.Println()
 })
+managerWorker.Start()
+managerWorker.Add()
+
+managerWorker.Stop()
 ```
