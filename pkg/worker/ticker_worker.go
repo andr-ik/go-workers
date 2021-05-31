@@ -1,19 +1,24 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
 
 type TickerWorker struct {
-	ticker *time.Ticker
-	done   chan bool
+	ticker     *time.Ticker
+	ctx        context.Context
+	cancelFunc context.CancelFunc
 }
 
 func NewTickerWorker(ticker *time.Ticker) TickerWorker {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
 	return TickerWorker{
-		ticker: ticker,
-		done:   make(chan bool),
+		ticker:     ticker,
+		ctx:        ctx,
+		cancelFunc: cancelFunc,
 	}
 }
 
@@ -22,7 +27,7 @@ func (w *TickerWorker) Start(handler func()) {
 	go func() {
 		for {
 			select {
-			case <-w.done:
+			case <-w.ctx.Done():
 				return
 			case <-w.ticker.C:
 				handler()
@@ -34,5 +39,5 @@ func (w *TickerWorker) Start(handler func()) {
 func (w *TickerWorker) Stop() {
 	w.ticker.Stop()
 	fmt.Println("Stop ticker worker.")
-	w.done <- true
+	w.cancelFunc()
 }

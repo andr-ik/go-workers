@@ -1,12 +1,18 @@
 package worker
 
+import "context"
+
 type Worker struct {
-	done chan bool
+	ctx        context.Context
+	cancelFunc context.CancelFunc
 }
 
 func NewWorker() Worker {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
 	return Worker{
-		done: make(chan bool),
+		ctx:        ctx,
+		cancelFunc: cancelFunc,
 	}
 }
 
@@ -14,7 +20,7 @@ func (w *Worker) Start(handler func()) {
 	go func() {
 		for {
 			select {
-			case <-w.done:
+			case <-w.ctx.Done():
 				return
 			default:
 				handler()
@@ -24,5 +30,5 @@ func (w *Worker) Start(handler func()) {
 }
 
 func (w *Worker) Stop() {
-	w.done <- true
+	w.cancelFunc()
 }
