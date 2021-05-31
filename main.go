@@ -16,7 +16,7 @@ func main() {
 	}
 
 	ticker := time.NewTicker(time.Second)
-	updateConfigWorker := worker.NewTickerWorker(ticker)
+	updateConfigWorker := worker.NewTicker(ticker)
 	updateConfigWorker.Start(func() {
 		_ = conf.Update()
 		fmt.Println("Update conf")
@@ -24,14 +24,26 @@ func main() {
 
 	fmt.Println("Start")
 
-	groupWorker := worker.NewGroupWorker(conf)
-	groupWorker.Start(func() {
+	managerWorker := worker.NewManager(conf)
+	managerWorker.Start()
+	handler := func() {
 		time.Sleep(100 * time.Millisecond)
 		fmt.Print(".")
-	})
+	}
 
-	time.Sleep(20 * time.Second)
-	groupWorker.Stop()
+	for i := 0; i < conf.GetNumWorker(); i++ {
+		managerWorker.Add(handler)
+	}
+	time.Sleep(5 * time.Second)
+	managerWorker.Add(handler)
+	time.Sleep(5 * time.Second)
+	managerWorker.Remove()
+	managerWorker.Remove()
+	managerWorker.Remove()
+
+	time.Sleep(10 * time.Second)
+	managerWorker.Stop()
+
 	updateConfigWorker.Stop()
 
 	fmt.Println("")

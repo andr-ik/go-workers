@@ -6,23 +6,23 @@ import (
 	"time"
 )
 
-type TickerWorker struct {
+type Ticker struct {
 	ticker     *time.Ticker
 	ctx        context.Context
 	cancelFunc context.CancelFunc
 }
 
-func NewTickerWorker(ticker *time.Ticker) TickerWorker {
+func NewTicker(ticker *time.Ticker) Ticker {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
-	return TickerWorker{
+	return Ticker{
 		ticker:     ticker,
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
 	}
 }
 
-func (w *TickerWorker) Start(handler func()) {
+func (w *Ticker) Start(handler func()) {
 	fmt.Println("Start ticker worker.")
 	go func() {
 		for {
@@ -36,7 +36,7 @@ func (w *TickerWorker) Start(handler func()) {
 	}()
 }
 
-func (w *TickerWorker) Stop() {
+func (w *Ticker) Stop() {
 	w.ticker.Stop()
 	fmt.Println("Stop ticker worker.")
 	w.cancelFunc()
