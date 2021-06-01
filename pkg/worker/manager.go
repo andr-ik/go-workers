@@ -9,8 +9,8 @@ type Manager struct {
 	handler    func()
 	pool       []Worker
 
-	add    chan bool
-	remove chan bool
+	add    chan uint
+	remove chan uint
 }
 
 func NewManager(handler func()) Manager {
@@ -19,8 +19,8 @@ func NewManager(handler func()) Manager {
 		handler:    handler,
 		pool:       []Worker{},
 
-		add:    make(chan bool),
-		remove: make(chan bool),
+		add:    make(chan uint),
+		remove: make(chan uint),
 	}
 
 	return manager
@@ -31,11 +31,15 @@ func (d *Manager) Start() {
 	d.controller.Start(func() {
 		for {
 			select {
-			case <-d.add:
-				d.addWorker()
+			case count := <-d.add:
+				for i := 0; i < int(count); i++ {
+					d.addWorker()
+				}
 				return
-			case <-d.remove:
-				d.removeWorker()
+			case count := <-d.remove:
+				for i := 0; i < int(count); i++ {
+					d.removeWorker()
+				}
 				return
 			default:
 			}
@@ -44,7 +48,11 @@ func (d *Manager) Start() {
 }
 
 func (d *Manager) Add() {
-	d.add <- true
+	d.add <- 1
+}
+
+func (d *Manager) AddBy(count uint) {
+	d.add <- count
 }
 
 func (d *Manager) addWorker() {
@@ -56,7 +64,11 @@ func (d *Manager) addWorker() {
 }
 
 func (d *Manager) Remove() {
-	d.remove <- true
+	d.remove <- 1
+}
+
+func (d *Manager) RemoveBy(count uint) {
+	d.remove <- count
 }
 
 func (d *Manager) removeWorker() {

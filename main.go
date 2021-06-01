@@ -24,9 +24,7 @@ func main() {
 
 	managerWorker2.Start()
 
-	for i := 0; i < 4; i++ {
-		managerWorker2.Add()
-	}
+	managerWorker2.AddBy(4)
 	time.Sleep(5 * time.Second)
 	managerWorker2.Add()
 	time.Sleep(5 * time.Second)
