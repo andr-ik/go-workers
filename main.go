@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andr-ik/go-workers/pkg/worker"
+	"github.com/andr-ik/go-workers/pkg/workers"
 )
 
 func main() {
 	fmt.Println("Start")
 
-	managerWorker1 := worker.NewManager(func() {
+	managerWorker1 := workers.NewManager(func() {
 		time.Sleep(1 * time.Second)
 		fmt.Println()
 	})
 	managerWorker1.Start()
 	managerWorker1.Add()
 
-	managerWorker2 := worker.NewManager(func() {
+	managerWorker2 := workers.NewManager(func() {
 		time.Sleep(100 * time.Millisecond)
 		fmt.Print(".")
 	})

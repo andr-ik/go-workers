@@ -1,4 +1,4 @@
-package worker
+package workers
 
 import (
 	"fmt"
@@ -77,6 +77,10 @@ func (d *Manager) removeWorker() {
 	d.pool = d.pool[:removeIndex]
 
 	fmt.Println("Remove worker. Now workers", len(d.pool))
+}
+
+func (d *Manager) Count() int {
+	return len(d.pool)
 }
 
 func (d *Manager) Stop() {
